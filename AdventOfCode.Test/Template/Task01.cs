@@ -13,13 +13,11 @@ public class Task01
     public void Test_ExampleData()
     {
         var input = new FileInput("DayXX/ExampleInput.txt").ReadLines();
-        Assert.Fail();
     }
 
     [Test]
     public void Test_MyData()
     {
         var input = new FileInput("DayXX/MyInput.txt").ReadLines();
-        Assert.Fail();
     }
 }
