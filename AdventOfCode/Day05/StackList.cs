@@ -3,12 +3,13 @@ namespace AdventOfCode.Day05;
 public class StackList
 {
     private Stack[] stacks;
+    private string[] moves;
 
     public StackList(string[] input, int numStacks)
     {
-        stacks = new Stack[numStacks];
+        this.stacks = new Stack[numStacks];
         for (int i = 0; i < numStacks; i++){
-            stacks[i] = new Stack();
+            this.stacks[i] = new Stack();
         }
 
         int lineIndex = 0;
@@ -23,12 +24,16 @@ public class StackList
                     continue;
                 }
                 var currentStackIndex = i / 4;
-                stacks[currentStackIndex].AddBottom(currentCrate);
+                this.stacks[currentStackIndex].AddBottom(currentCrate);
             }
             lineIndex++;
         }
 
-        string[] moves = input.Skip(lineIndex).ToArray();
+        this.moves = input.Skip(lineIndex).ToArray();
+        MakeMoves();
+    }
+
+    protected void MakeMoves(){
         foreach (var move in moves){
             //"move 1 from 2 to 1"
             var split = move.Split(" ");
@@ -36,8 +41,8 @@ public class StackList
             var sourceStack = int.Parse(split[3]);
             var destinationStack = int.Parse(split[5]);
             for (int i = 0; i < numCrates; i++){
-                var crate = stacks[sourceStack-1].Remove();
-                stacks[destinationStack-1].Add(crate);
+                var crate = this.stacks[sourceStack-1].Remove();
+                this.stacks[destinationStack-1].Add(crate);
             }
         }
     }

@@ -1,6 +1,6 @@
 using NUnit.Framework;
 
-namespace AdventOfCode.Test.Template;
+namespace AdventOfCode.Test.Day07;
 
 public class Task02
 {
@@ -12,12 +12,12 @@ public class Task02
     [Test]
     public void Test_ExampleData()
     {
-        var input = new FileInput("DayXX/ExampleInput.txt").ReadLines();
+        var input = new FileInput("Day07/ExampleInput.txt").ReadLines();
     }
 
     [Test]
     public void Test_MyData()
     {
-        var input = new FileInput("DayXX/MyInput.txt").ReadLines();
+        var input = new FileInput("Day07/MyInput.txt").ReadLines();
     }
 }
