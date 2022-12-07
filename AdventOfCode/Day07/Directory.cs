@@ -1,14 +1,12 @@
 namespace AdventOfCode.Day07;
 
-public class Directory
+public class Directory : FileSystemItem
 {
-    private string Name;
     private List<File> Files;
     private List<Directory> Directories;
 
-    public Directory(string name)
+    public Directory(string name) : base(name)
     {
-        this.Name = name;
         this.Files = new List<File>();
         this.Directories = new List<Directory>();
     }
@@ -20,16 +18,16 @@ public class Directory
 
     public void AddFile(string name, double size)
     {
-        this.Files.Add(new File(){Name = name, Size = size});
+        this.Files.Add(new File(name,size));
     }
 
-    public double Size()
+    public override double Size()
     {
         return SizeOfFiles() + this.Directories.Sum(d => d.Size());
     }
 
     private double SizeOfFiles(){
-        return this.Files.Sum(f => f.Size);
+        return this.Files.Sum(f => f.Size());
     }
 
     public double Size(int limit)
@@ -64,10 +62,5 @@ public class Directory
             return bestSubDir.Min();
         }
         return currentBestSize;
-    }
-
-    private struct File{
-        public string Name;
-        public double Size;
     }
 }
