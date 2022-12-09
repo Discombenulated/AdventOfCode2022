@@ -5,17 +5,24 @@ public class Bridge
     private int Width;
     private int Height;
     private char[,] Map;
-    private (int X,int Y) HeadPosition;
-    private (int X,int Y) TailPosition;
+    private Position HeadPosition;
+    
+    private List<Position> TailPositions;
 
-    public Bridge(int width, int height)
+    public Bridge(int width, int height) : this(1, width, height){}
+
+    public Bridge(int numTails, int width, int height)
     {
         this.Width = width;
         this.Height = height;
         this.Map = new char[width*2,height*2];
-        this.HeadPosition = (width-1,height-1);
-        this.TailPosition = (width-1,height-1);
-        Map[TailPosition.X, TailPosition.Y] = '#';
+        this.HeadPosition = new Position{X=width-1,Y=height-1};
+
+        this.TailPositions = new List<Position>();
+        for (int i = 0; i < numTails; i++){
+            this.TailPositions.Add(new Position{X = width-1,Y = height-1});
+        }
+        Map[TailPositions.Last().X, TailPositions.Last().Y] = '#';
     }
 
     public double CountPositionsVisitedByTailFollowing(string[] input)
@@ -35,31 +42,74 @@ public class Bridge
         for (int i = 0; i < steps; i++){
             if (direction.Equals("R")){
                 HeadPosition.X++;
-                if (HeadPosition.X - TailPosition.X > 1) {
-                    TailPosition.X++;
-                    TailPosition.Y = HeadPosition.Y;
-                }
             } else if (direction.Equals("U")){
                 HeadPosition.Y--;
-                if (HeadPosition.Y - TailPosition.Y < -1) {
-                    TailPosition.Y--;
-                    TailPosition.X = HeadPosition.X;
-                }
             } else if (direction.Equals("L")){
                 HeadPosition.X--;
-                if (HeadPosition.X - TailPosition.X < -1) {
-                    TailPosition.X--;
-                    TailPosition.Y = HeadPosition.Y;
-                }  
             } else if (direction.Equals("D")){
                 HeadPosition.Y++;
-                if (HeadPosition.Y - TailPosition.Y > 1) {
-                    TailPosition.Y++;
-                    TailPosition.X = HeadPosition.X;
+            }
+            
+            TailPositions[0] = MoveTail(TailPositions[0], HeadPosition);
+
+            for (int tailIndex = 1; tailIndex < TailPositions.Count; tailIndex++){
+                TailPositions[tailIndex] = MoveTail(TailPositions[tailIndex], TailPositions[tailIndex-1]);
+            }
+
+            Map[TailPositions.Last().X, TailPositions.Last().Y] = '#';
+        }
+    }
+
+    private Position MoveTail(Position position, Position headPosition)
+    {
+        
+        if (position.Y == headPosition.Y){
+            //Directly Left / Right
+            if (position.X - headPosition.X > 1){
+                position.X--;
+            } else if (headPosition.X - position.X > 1){
+                position.X++;
+            }
+        } else if (position.X == headPosition.X){
+            //Directly up / down
+            if (position.Y - headPosition.Y > 1){
+                position.Y--;
+            } else if (headPosition.Y - position.Y > 1){
+                position.Y++;
+            }
+        } else {
+            //Diagonal
+            if (position.X - headPosition.X > 1){
+                position.X--;
+                if (position.Y < headPosition.Y){
+                    position.Y++;
+                } else {
+                    position.Y--;
+                }
+            } else if (headPosition.X - position.X > 1){
+                position.X++;
+                if (position.Y < headPosition.Y){
+                    position.Y++;
+                } else {
+                    position.Y--;
+                }
+            } else if (position.Y - headPosition.Y > 1){
+                position.Y--;
+                if (position.X < headPosition.X){
+                    position.X++;
+                } else {
+                    position.X--;
+                }
+            } else if (headPosition.Y - position.Y > 1){
+                position.Y++;
+                if (position.X < headPosition.X){
+                    position.X++;
+                } else {
+                    position.X--;
                 }
             }
-            Map[TailPosition.X, TailPosition.Y] = '#';
         }
+        return position;
     }
 
     private double CountPositionsVisited(){
@@ -84,5 +134,10 @@ public class Bridge
         var rightSteps = input.Select(line => new {Direction = line.Split(" ")[0], Steps = line.Split(" ")[1]}).Where(a => a.Direction == "U").Count();
         var leftSteps = input.Select(line => new {Direction = line.Split(" ")[0], Steps = line.Split(" ")[1]}).Where(a => a.Direction == "D").Count();
         return Math.Max(rightSteps, leftSteps);
+    }
+
+    private struct Position{
+        public int X;
+        public int Y;
     }
 }
