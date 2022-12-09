@@ -2,31 +2,24 @@ namespace AdventOfCode.Day09;
 
 public class Bridge
 {
-    private int Width;
-    private int Height;
-    private char[,] Map;
     private Position HeadPosition;
     
     private List<Position> TailPositions;
 
     private HashSet<Position> FinalUniqueTailPositions;
 
-    public Bridge(int width, int height) : this(1, width, height){}
+    public Bridge() : this(1){}
 
-    public Bridge(int numTails, int width, int height)
+    public Bridge(int numTails)
     {
-        this.Width = width;
-        this.Height = height;
-        this.Map = new char[width*2,height*2];
-        this.HeadPosition = new Position(width-1,height-1);
+        this.HeadPosition = new Position(0,0);
 
         this.TailPositions = new List<Position>();
         for (int i = 0; i < numTails; i++){
-            this.TailPositions.Add(new Position(width-1,height-1));
+            this.TailPositions.Add(new Position(0,0));
         }
-        Map[TailPositions.Last().X, TailPositions.Last().Y] = '#';
         FinalUniqueTailPositions = new HashSet<Position>();
-        FinalUniqueTailPositions.Add(TailPositions.Last());
+        FinalUniqueTailPositions.Add(TailPositions.Last().Copy());
     }
 
     public double CountPositionsVisitedByTailFollowing(string[] input)
@@ -60,20 +53,12 @@ public class Bridge
                 TailPositions[tailIndex].MoveRelativeTo(TailPositions[tailIndex-1]);
             }
 
-            Map[TailPositions.Last().X, TailPositions.Last().Y] = '#';
+            FinalUniqueTailPositions.Add(TailPositions.Last().Copy());
         }
     }
 
     private double CountPositionsVisited(){
-        var positionsVisited = 0;
-        for (int x = 0; x < Width*2; x++){
-            for (int y = 0; y < Height*2; y++){
-                if (Map[x,y] == '#'){
-                    positionsVisited++;
-                }
-            }
-        }
-        return positionsVisited;
+        return FinalUniqueTailPositions.Count();
     }
 
     public static double MaxWidth(string[] input){
@@ -198,6 +183,23 @@ public class Bridge
         public Position MoveRight(){
             this.X++;
             return this;
+        }
+
+        public Position Copy()
+        {
+            return new Position(X, Y);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Position position &&
+                   X == position.X &&
+                   Y == position.Y;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y);
         }
     }
 }

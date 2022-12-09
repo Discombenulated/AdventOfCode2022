@@ -14,7 +14,7 @@ public class Task02
     public void Test_ExampleData()
     {
         var input = new FileInput("Day09/ExampleInput.txt").ReadLines();
-        var bridge = new Bridge(9, 10, 10);
+        var bridge = new Bridge(9);
         Assert.AreEqual(1, bridge.CountPositionsVisitedByTailFollowing(input));
     }
 
@@ -22,20 +22,20 @@ public class Task02
     public void Test_Example2Data()
     {
         var input = new FileInput("Day09/Example2Input.txt").ReadLines();
-        var bridge = new Bridge(9, 100, 100);
+        var bridge = new Bridge(9);
         Assert.AreEqual(36, bridge.CountPositionsVisitedByTailFollowing(input));
     }
 
     [Test]
     public void HeadMovesRightFourSteps(){
-        var bridge = new Bridge(2, 10, 10);
+        var bridge = new Bridge(2);
         var input = new string[]{"R 4"};
         Assert.AreEqual(3, bridge.CountPositionsVisitedByTailFollowing(input));
     }
 
     [Test]
     public void HeadMovesUpFourSteps(){
-        var bridge = new Bridge(2, 10, 10);
+        var bridge = new Bridge(2);
         var input = new string[]{"U 4"};
         Assert.AreEqual(3, bridge.CountPositionsVisitedByTailFollowing(input));
     }
@@ -44,7 +44,7 @@ public class Task02
     public void Test_MyData()
     {
         var input = new FileInput("Day09/MyInput.txt").ReadLines();
-        var bridge = new Bridge(9, 1000, 1000);
+        var bridge = new Bridge(9);
         Assert.AreEqual(2460, bridge.CountPositionsVisitedByTailFollowing(input));
     }
 }
