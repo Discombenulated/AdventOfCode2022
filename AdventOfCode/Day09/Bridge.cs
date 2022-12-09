@@ -6,7 +6,7 @@ public class Bridge
     
     private List<Position> TailPositions;
 
-    private HashSet<Position> FinalUniqueTailPositions;
+    private HashSet<Position> PositionsVisitedByTail;
 
     public Bridge() : this(1){}
 
@@ -18,8 +18,8 @@ public class Bridge
         for (int i = 0; i < numTails; i++){
             this.TailPositions.Add(new Position(0,0));
         }
-        FinalUniqueTailPositions = new HashSet<Position>();
-        FinalUniqueTailPositions.Add(TailPositions.Last().Copy());
+        PositionsVisitedByTail = new HashSet<Position>();
+        PositionsVisitedByTail.Add(TailPositions.Last().Copy());
     }
 
     public double CountPositionsVisitedByTailFollowing(string[] input)
@@ -53,24 +53,12 @@ public class Bridge
                 TailPositions[tailIndex].MoveRelativeTo(TailPositions[tailIndex-1]);
             }
 
-            FinalUniqueTailPositions.Add(TailPositions.Last().Copy());
+            PositionsVisitedByTail.Add(TailPositions.Last().Copy());
         }
     }
 
     private double CountPositionsVisited(){
-        return FinalUniqueTailPositions.Count();
-    }
-
-    public static double MaxWidth(string[] input){
-        var rightSteps = input.Select(line => new {Direction = line.Split(" ")[0], Steps = line.Split(" ")[1]}).Where(a => a.Direction == "R").Count();
-        var leftSteps = input.Select(line => new {Direction = line.Split(" ")[0], Steps = line.Split(" ")[1]}).Where(a => a.Direction == "L").Count();
-        return Math.Max(rightSteps, leftSteps);
-    }
-
-    public static double MaxHeight(string[] input){
-        var rightSteps = input.Select(line => new {Direction = line.Split(" ")[0], Steps = line.Split(" ")[1]}).Where(a => a.Direction == "U").Count();
-        var leftSteps = input.Select(line => new {Direction = line.Split(" ")[0], Steps = line.Split(" ")[1]}).Where(a => a.Direction == "D").Count();
-        return Math.Max(rightSteps, leftSteps);
+        return PositionsVisitedByTail.Count();
     }
 
     private class Position{

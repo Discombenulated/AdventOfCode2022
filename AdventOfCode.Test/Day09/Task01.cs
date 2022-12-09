@@ -71,8 +71,6 @@ public class Task01
     public void Test_MyData()
     {
         var input = new FileInput("Day09/MyInput.txt").ReadLines();
-        var width = Bridge.MaxWidth(input);
-        var height = Bridge.MaxHeight(input);
         var bridge = new Bridge();
         Assert.AreEqual(6209, bridge.CountPositionsVisitedByTailFollowing(input));
     }
