@@ -9,6 +9,8 @@ public class Bridge
     
     private List<Position> TailPositions;
 
+    private HashSet<Position> FinalUniqueTailPositions;
+
     public Bridge(int width, int height) : this(1, width, height){}
 
     public Bridge(int numTails, int width, int height)
@@ -16,13 +18,15 @@ public class Bridge
         this.Width = width;
         this.Height = height;
         this.Map = new char[width*2,height*2];
-        this.HeadPosition = new Position{X=width-1,Y=height-1};
+        this.HeadPosition = new Position(width-1,height-1);
 
         this.TailPositions = new List<Position>();
         for (int i = 0; i < numTails; i++){
-            this.TailPositions.Add(new Position{X = width-1,Y = height-1});
+            this.TailPositions.Add(new Position(width-1,height-1));
         }
         Map[TailPositions.Last().X, TailPositions.Last().Y] = '#';
+        FinalUniqueTailPositions = new HashSet<Position>();
+        FinalUniqueTailPositions.Add(TailPositions.Last());
     }
 
     public double CountPositionsVisitedByTailFollowing(string[] input)
@@ -41,75 +45,23 @@ public class Bridge
     {
         for (int i = 0; i < steps; i++){
             if (direction.Equals("R")){
-                HeadPosition.X++;
+                HeadPosition.MoveRight();
             } else if (direction.Equals("U")){
-                HeadPosition.Y--;
+                HeadPosition.MoveUp();
             } else if (direction.Equals("L")){
-                HeadPosition.X--;
+                HeadPosition.MoveLeft();
             } else if (direction.Equals("D")){
-                HeadPosition.Y++;
+                HeadPosition.MoveDown();
             }
             
-            TailPositions[0] = MoveTail(TailPositions[0], HeadPosition);
+            TailPositions[0].MoveRelativeTo(HeadPosition);
 
             for (int tailIndex = 1; tailIndex < TailPositions.Count; tailIndex++){
-                TailPositions[tailIndex] = MoveTail(TailPositions[tailIndex], TailPositions[tailIndex-1]);
+                TailPositions[tailIndex].MoveRelativeTo(TailPositions[tailIndex-1]);
             }
 
             Map[TailPositions.Last().X, TailPositions.Last().Y] = '#';
         }
-    }
-
-    private Position MoveTail(Position position, Position headPosition)
-    {
-        
-        if (position.Y == headPosition.Y){
-            //Directly Left / Right
-            if (position.X - headPosition.X > 1){
-                position.X--;
-            } else if (headPosition.X - position.X > 1){
-                position.X++;
-            }
-        } else if (position.X == headPosition.X){
-            //Directly up / down
-            if (position.Y - headPosition.Y > 1){
-                position.Y--;
-            } else if (headPosition.Y - position.Y > 1){
-                position.Y++;
-            }
-        } else {
-            //Diagonal
-            if (position.X - headPosition.X > 1){
-                position.X--;
-                if (position.Y < headPosition.Y){
-                    position.Y++;
-                } else {
-                    position.Y--;
-                }
-            } else if (headPosition.X - position.X > 1){
-                position.X++;
-                if (position.Y < headPosition.Y){
-                    position.Y++;
-                } else {
-                    position.Y--;
-                }
-            } else if (position.Y - headPosition.Y > 1){
-                position.Y--;
-                if (position.X < headPosition.X){
-                    position.X++;
-                } else {
-                    position.X--;
-                }
-            } else if (headPosition.Y - position.Y > 1){
-                position.Y++;
-                if (position.X < headPosition.X){
-                    position.X++;
-                } else {
-                    position.X--;
-                }
-            }
-        }
-        return position;
     }
 
     private double CountPositionsVisited(){
@@ -136,8 +88,116 @@ public class Bridge
         return Math.Max(rightSteps, leftSteps);
     }
 
-    private struct Position{
-        public int X;
-        public int Y;
+    private class Position{
+        public int X {
+            get;
+            private set;
+        }
+        public int Y {
+            get;
+            private set;
+        }
+
+        public Position(int x, int y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+
+        public Position MoveRelativeTo(Position other)
+        {
+            
+            if (this.Y == other.Y){
+                //Directly Left / Right
+                if (IsRightByMoreThan(other, 1)){
+                    MoveLeft();
+                } else if (IsLeftByMoreThan(other, 1)){
+                    MoveRight();
+                }
+            } else if (this.X == other.X)
+            {
+                //Directly up / down
+                if (IsBelowByMoreThan(other, 1))
+                {
+                    MoveUp();
+                }
+                else if (IsAboveByMoreThan(other, 1))
+                {
+                    MoveDown();
+                }
+            }
+            else {
+                //Diagonal
+                if (IsRightByMoreThan(other, 1)){
+                    MoveLeft();
+                    if (IsAboveByMoreThan(other, 0)){
+                        MoveDown();
+                    } else {
+                        MoveUp();
+                    }
+                } else if (IsLeftByMoreThan(other, 1)){
+                    this.X++;
+                    if (IsAboveByMoreThan(other, 0)){
+                        MoveDown();
+                    } else {
+                        MoveUp();
+                    }
+                } else if (IsBelowByMoreThan(other, 1)){
+                    MoveUp();
+                    if (this.X < other.X){
+                        MoveRight();
+                    } else {
+                        MoveLeft();
+                    }
+                } else if (IsAboveByMoreThan(other, 1)){
+                    MoveDown();
+                    if (this.X < other.X){
+                        MoveRight();
+                    } else {
+                        MoveLeft();
+                    }
+                }
+            }
+            return this;
+        }
+
+        private bool IsAboveByMoreThan(Position headPosition, int maxStepsAbove)
+        {
+            return headPosition.Y - this.Y > maxStepsAbove;
+        }
+
+        private bool IsBelowByMoreThan(Position headPosition, int maxStepsBelow)
+        {
+            return this.Y - headPosition.Y > maxStepsBelow;
+        }
+
+        private bool IsRightByMoreThan(Position headPosition, int maxStepsToRight)
+        {
+            return this.X - headPosition.X > maxStepsToRight;
+        }
+
+        private bool IsLeftByMoreThan(Position headPosition, int maxStepsToLeft){
+            return headPosition.X - this.X > maxStepsToLeft;
+        }
+
+        public Position MoveUp(){
+            this.Y--;
+            return this;
+        }
+
+        public Position MoveDown(){
+            this.Y++;
+            return this;
+        }
+
+        public Position MoveLeft(){
+            this.X--;
+            return this;
+        }
+
+        public Position MoveRight(){
+            this.X++;
+            return this;
+        }
     }
 }
